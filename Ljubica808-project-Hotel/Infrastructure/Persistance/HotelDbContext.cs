@@ -29,3 +29,8 @@ namespace Infrastructure.Persistence
         }
     }
 }
+/*
+IApplicationDbContext: služi za apstrakciju nad DbContext-om i omogućuje lakše testiranje i razdvajanje slojeva aplikacije.
+VEza između C# klasa i baze podataka koristeći entity framework(Bez korištenja SQL)
+
+ */
