@@ -8,14 +8,20 @@ namespace Domain.Models
 {
     public class Reservation
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
+        
+        // Foreign Keys
         public int RoomId { get; set; }
         public int GuestId { get; set; }
+
 
         public DateTime Checkin {  get; set; }
         public DateTime Checkout { get; set; }
 
         public double TotalPrice {  get; set; }
 
+        // Navigation properties
+        public Room Room { get; set; } = null!;
+        public Guest Guest { get; set; } = null!;
     }
 }

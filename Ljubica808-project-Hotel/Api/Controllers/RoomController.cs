@@ -32,13 +32,13 @@ namespace Api.Controllers
         {
             var room = new Room
             {
-                Id = _idCounter++,
+                Id = (int)_idCounter++,
                 RoomNumber = dto.RoomNumber,
                 Floor = dto.Floor,
                 Capacity = dto.Capacity,
                 PricePerNight = dto.PricePerNight,
                 Type = dto.Type,
-                IsActive = dto.IsActive
+                IsAvailable = dto.IsAvailable
             };
 
             _rooms.Add(room);
@@ -56,7 +56,7 @@ namespace Api.Controllers
             room.Capacity = updated.Capacity;
             room.PricePerNight = updated.PricePerNight;
             room.Type = updated.Type;
-            room.IsActive = updated.IsActive;
+            room.IsAvailable = updated.IsAvailable;
 
             return Ok(room.Id);
         }
