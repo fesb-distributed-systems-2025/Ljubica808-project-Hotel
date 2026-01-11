@@ -47,7 +47,7 @@ namespace Api.Controllers
         {
             var guest = new Guest
             {
-                Id = _idCounter++,
+                Id = (int)_idCounter++,
                 FirstName = newGuest.FirstName,
                 LastName = newGuest.LastName,
                 PhoneNumber = newGuest.PhoneNumber,

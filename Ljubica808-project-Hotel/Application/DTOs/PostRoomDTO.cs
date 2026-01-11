@@ -15,6 +15,6 @@ namespace Application.DTOs
         public int Capacity { get; set; }
         public double PricePerNight { get; set; }
         public RoomType Type { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsAvailable { get; set; }
     }
 }

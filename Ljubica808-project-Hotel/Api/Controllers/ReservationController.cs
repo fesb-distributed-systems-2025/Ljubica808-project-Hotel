@@ -35,7 +35,7 @@ namespace Api.Controllers
 
             var reservation = new Reservation
             {
-                Id = _idCounter++,
+                Id = (int)_idCounter++,
                 RoomId = dto.RoomId,
                 GuestId = dto.GuestId,
                 Checkin = dto.Checkin,

@@ -8,13 +8,16 @@ namespace Domain.Models
 {
     public class Room
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
         public string? RoomNumber {  get; set; }
         public int Floor {  get; set; }
         public int Capacity {  get; set; }
         public double PricePerNight {  get; set; }
         public RoomType Type { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsAvailable { get; set; }
+        
+        // 1-N: jedna soba ima više rezervacija
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     }
     public enum RoomType // Jednostavije ovako implementirat nego da se koristi string
     {
