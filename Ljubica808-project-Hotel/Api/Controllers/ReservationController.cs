@@ -53,11 +53,7 @@ namespace Api.Controllers
             var r = _reservations.FirstOrDefault(x => x.Id == updated.Id);
             if (r == null) return NotFound("Reservation not found");
 
-            r.RoomId = updated.RoomId;
-            r.GuestId = updated.GuestId;
-            r.Checkin = updated.Checkin;
-            r.Checkout = updated.Checkout;
-            r.TotalPrice = updated.TotalPrice;
+            
 
             return Ok(r.Id);
         }

@@ -69,11 +69,7 @@ namespace Api.Controllers
             if (oldGuest == null)
                 return NotFound("Guest not found!");
 
-            oldGuest.FirstName = updatedGuest.FirstName;
-            oldGuest.LastName = updatedGuest.LastName;
-            oldGuest.Email = updatedGuest.Email;
-            oldGuest.PhoneNumber = updatedGuest.PhoneNumber;
-            oldGuest.DateOfBirth = updatedGuest.DateOfBirth;
+            
 
             return Ok(oldGuest.Id);
         }

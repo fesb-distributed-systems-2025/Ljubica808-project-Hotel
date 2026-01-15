@@ -51,9 +51,6 @@ namespace Api.Controllers
 
             if (emp == null) return NotFound("Employee not found");
 
-            emp.FirstName = updated.FirstName;
-            emp.LastName = updated.LastName;
-            emp.Position = updated.Position;
 
             return Ok(emp.Id);
         }

@@ -51,12 +51,7 @@ namespace Api.Controllers
             var room = _rooms.FirstOrDefault(x => x.Id == updated.Id);
             if (room == null) return NotFound("Room not found");
 
-            room.RoomNumber = updated.RoomNumber;
-            room.Floor = updated.Floor;
-            room.Capacity = updated.Capacity;
-            room.PricePerNight = updated.PricePerNight;
-            room.Type = updated.Type;
-            room.IsAvailable = updated.IsAvailable;
+           
 
             return Ok(room.Id);
         }
