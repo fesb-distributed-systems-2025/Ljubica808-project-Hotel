@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +10,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
 // DbContext preko interface-a
 builder.Services.AddDbContext<IApplicationDbContext, HotelDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddApplication();
 
 var app = builder.Build();
 

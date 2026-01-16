@@ -1,6 +1,6 @@
 ﻿using Application.DTOs;
-using Domain.Models;
-using Microsoft.AspNetCore.Http;
+using Application.Interfaces.Services;
+using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -8,83 +8,47 @@ namespace Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class GuestController : ControllerBase
-    {   
-        // Koristimo fake database čisto da provjerimo je radi,
-        // Implementirat ćemo svoju na sljedećim vježbama
-        // Fake database (in-memory storage) 
-        private static List<Guest> _guests = new();
-        private static long _idCounter = 1;
+    {
+        private readonly IGuestService _guestService;
 
-
-        //ActionResult<tip podatka>- Može vratiti samo 404 NotFound() ili 200OK(Objekt postoji)
-        // plus <tip podatka>
-        public GuestController()
+        public GuestController(IGuestService guestService)
         {
+            _guestService = guestService;
         }
 
-        // READ ALL: GET api/guest/guests
-        [HttpGet("guests")]
-        public IEnumerable<Guest> GetAllGuests()
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllGuests()
         {
-            return _guests;
-        }
-        // READ ONE: GET api/guest/guests/{id}
-        [HttpGet("guests/{id}")]
-        public ActionResult<Guest> GetGuestById([FromRoute] long id)
-        {
-            var guest = _guests.FirstOrDefault(x => x.Id == id);
-
-            if (guest == null)
-                return NotFound("Guest not found!");
-
-            return Ok(guest);
+            var result = await _guestService.GetAllGuests();
+            return Ok(result);
         }
 
-
-        // CREATE: POST api/guest/new
-        [HttpPost("new")]
-        public ActionResult<int> AddGuest([FromBody] PostGuestDTO newGuest)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetGuestById(int id)
         {
-            var guest = new Guest
-            {
-                Id = (int)_idCounter++,
-                FirstName = newGuest.FirstName,
-                LastName = newGuest.LastName,
-                PhoneNumber = newGuest.PhoneNumber,
-                Email = newGuest.Email,
-                DateOfBirth = newGuest.DateOfBirth
-            };
-
-            _guests.Add(guest);
-
-            return Ok(guest.Id);
+            var result = await _guestService.GetGuestById(id);
+            return Ok(result);
         }
 
-        // UPDATE: PUT api/guest/edit
-        [HttpPut("edit")]
-        public ActionResult<int> EditGuest([FromBody] Guest updatedGuest)
+        [HttpPost]
+        public async Task<IActionResult> AddGuest([FromBody] PostGuestDTO guest)
         {
-            var oldGuest = _guests.FirstOrDefault(x => x.Id == updatedGuest.Id);
-
-            if (oldGuest == null)
-                return NotFound("Guest not found!");
-
-            
-
-            return Ok(oldGuest.Id);
+            var result = await _guestService.AddGuest(guest);
+            return Ok(result);
         }
-        // DELETE: DELETE api/guest/delete/{id}
-        [HttpDelete("delete/{id}")]
-        public ActionResult<int> DeleteGuest([FromRoute] long id)
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateGuest([FromBody] PutGuestDTO guest)
         {
-            var exists = _guests.Any(x => x.Id == id);
+            var result = await _guestService.UpdateGuest(guest);
+            return Ok(result);
+        }
 
-            if (!exists)
-                return NotFound("Guest not found!");
-
-            _guests = _guests.Where(x => x.Id != id).ToList();
-
-            return Ok((int)id);
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGuest(int id)
+        {
+            var result = await _guestService.DeleteGuest(id);
+            return Ok(result);
         }
     }
 }
