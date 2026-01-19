@@ -1,17 +1,21 @@
 ﻿using Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
     public class PostEmployeeDTO
     {
-        public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
         public EmployeePosition Position { get; set; }
+
+        public Domain.Models.Employee ToModel()
+        {
+            return new Domain.Models.Employee
+            {
+                FirstName = FirstName,
+                LastName = LastName,
+                Position = Position
+            };
+        }
     }
 }

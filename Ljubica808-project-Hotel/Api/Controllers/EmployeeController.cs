@@ -1,7 +1,7 @@
 ﻿using Application.DTOs;
-using Domain.Models;
+using Application.Interfaces.Services;
+using Application.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace Api.Controllers
 {
@@ -9,63 +9,46 @@ namespace Api.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        // Koristimo fake database čisto da provjerimo je radi,
-        // Implementirat ćemo svoju na sljedećim vježbama
-        // Fake database (in-memory storage) 
-        private static List<Employee> _employees = new();
-        private static int _idCounter = 1;
+        private readonly IEmployeeService _employeeService;
 
-        public EmployeeController() { }
-
-        [HttpGet("employees")]
-        public IEnumerable<Employee> GetAllEmployees() => _employees;
-
-        [HttpGet("employees/{id}")]
-        public ActionResult<Employee> GetEmployeeById(int id)
+        public EmployeeController(IEmployeeService employeeService)
         {
-            // LINQ(Language Integrated Query)
-            //FirstorDefault-pretražuje listu od početka i vraća prvi element koji zadovoljava uvjet
-            var emp = _employees.FirstOrDefault(x => x.Id == id); // Lamba izraz
-            return emp == null ? NotFound("Employee not found") : Ok(emp);
+            _employeeService = employeeService;
         }
 
-        [HttpPost("new")]
-        public ActionResult<int> AddEmployee([FromBody] PostEmployeeDTO dto)
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllEmployees()
         {
-            var emp = new Employee
-            {
-                Id = _idCounter++,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Position = dto.Position
-            };
-
-            _employees.Add(emp);
-            return Ok(emp.Id);
+            var result = await _employeeService.GetAllEmployees();
+            return Ok(result);
         }
 
-        [HttpPut("edit")]
-        public ActionResult<int> EditEmployee([FromBody] Employee updated)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetEmployeeById(int id)
         {
-            var emp = _employees.FirstOrDefault(x => x.Id == updated.Id);
-
-            if (emp == null) return NotFound("Employee not found");
-
-            emp.FirstName = updated.FirstName;
-            emp.LastName = updated.LastName;
-            emp.Position = updated.Position;
-
-            return Ok(emp.Id);
+            var result = await _employeeService.GetEmployeeById(id);
+            return Ok(result);
         }
 
-        [HttpDelete("delete/{id}")]
-        public ActionResult<int> DeleteEmployee(int id)
+        [HttpPost]
+        public async Task<IActionResult> AddEmployee([FromBody] PostEmployeeDTO employee)
         {
-            var exists = _employees.Any(x => x.Id == id);
-            if (!exists) return NotFound("Employee not found");
+            var result = await _employeeService.AddEmployee(employee);
+            return Ok(result);
+        }
 
-            _employees = _employees.Where(x => x.Id != id).ToList();
-            return Ok(id);
+        [HttpPut]
+        public async Task<IActionResult> UpdateEmployee([FromBody] PutEmployeeDTO employee)
+        {
+            var result = await _employeeService.UpdateEmployee(employee);
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEmployee(int id)
+        {
+            var result = await _employeeService.DeleteEmployee(id);
+            return Ok(result);
         }
     }
 }

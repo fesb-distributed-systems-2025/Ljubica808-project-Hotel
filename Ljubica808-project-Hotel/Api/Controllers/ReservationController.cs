@@ -1,7 +1,7 @@
 ﻿using Application.DTOs;
-using Domain.Models;
+using Application.Interfaces.Services;
+using Application.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace Api.Controllers
 {
@@ -9,67 +9,46 @@ namespace Api.Controllers
     [ApiController]
     public class ReservationController : ControllerBase
     {
-        // Koristimo fake database čisto da provjerimo je radi,
-        // Implementirat ćemo svoju na sljedećim vježbama
-        // Fake database (in-memory storage) 
-        private static List<Reservation> _reservations = new();
-        private static long _idCounter = 1;
+        private readonly IReservationService _reservationService;
 
-        public ReservationController() { }
-
-        [HttpGet("reservations")]
-        public IEnumerable<Reservation> GetAllReservations() => _reservations;
-
-        [HttpGet("reservations/{id}")]
-        public ActionResult<Reservation> GetReservationById(long id)
+        public ReservationController(IReservationService reservationService)
         {
-            var r = _reservations.FirstOrDefault(x => x.Id == id);
-            return r == null ? NotFound("Reservation not found") : Ok(r);
+            _reservationService = reservationService;
         }
 
-        [HttpPost("new")]
-        public ActionResult<long> AddReservation([FromBody] PostReservationDTO dto)
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllReservations()
         {
-            int nights = (dto.Checkout - dto.Checkin).Days;
-            if (nights < 1) nights = 1;
-
-            var reservation = new Reservation
-            {
-                Id = (int)_idCounter++,
-                RoomId = dto.RoomId,
-                GuestId = dto.GuestId,
-                Checkin = dto.Checkin,
-                Checkout = dto.Checkout,
-                TotalPrice = nights * 100 // temporary logic
-            };
-
-            _reservations.Add(reservation);
-            return Ok(reservation.Id);
+            var result = await _reservationService.GetAllReservations();
+            return Ok(result);
         }
 
-        [HttpPut("edit")]
-        public ActionResult<long> EditReservation([FromBody] Reservation updated)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetReservationById(int id)
         {
-            var r = _reservations.FirstOrDefault(x => x.Id == updated.Id);
-            if (r == null) return NotFound("Reservation not found");
-
-            r.RoomId = updated.RoomId;
-            r.GuestId = updated.GuestId;
-            r.Checkin = updated.Checkin;
-            r.Checkout = updated.Checkout;
-            r.TotalPrice = updated.TotalPrice;
-
-            return Ok(r.Id);
+            var result = await _reservationService.GetReservationById(id);
+            return Ok(result);
         }
 
-        [HttpDelete("delete/{id}")]
-        public ActionResult<long> DeleteReservation(long id)
+        [HttpPost]
+        public async Task<IActionResult> AddReservation([FromBody] PostReservationDTO reservation)
         {
-            var exists = _reservations.Any(x => x.Id == id);
-            if (!exists) return NotFound("Reservation not found");
+            var result = await _reservationService.AddReservation(reservation);
+            return Ok(result);
+        }
 
-            _reservations = _reservations.Where(x => x.Id != id).ToList();
-            return Ok(id);
+        [HttpPut]
+        public async Task<IActionResult> UpdateReservation([FromBody] PutReservationDTO reservation)
+        {
+            var result = await _reservationService.UpdateReservation(reservation);
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteReservation(int id)
+        {
+            var result = await _reservationService.DeleteReservation(id);
+            return Ok(result);
         }
     }
 }

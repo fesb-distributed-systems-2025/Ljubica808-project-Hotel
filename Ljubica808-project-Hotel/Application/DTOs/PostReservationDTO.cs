@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Models;
 
 namespace Application.DTOs
 {
     public class PostReservationDTO
     {
-        public long Id { get; set; }
         public int RoomId { get; set; }
         public int GuestId { get; set; }
 
@@ -16,5 +11,17 @@ namespace Application.DTOs
         public DateTime Checkout { get; set; }
 
         public double TotalPrice { get; set; }
+
+        public Domain.Models.Reservation ToModel()
+        {
+            return new Domain.Models.Reservation
+            {
+                RoomId = RoomId,
+                GuestId = GuestId,
+                Checkin = Checkin,
+                Checkout = Checkout,
+                TotalPrice = TotalPrice
+            };
+        }
     }
 }
