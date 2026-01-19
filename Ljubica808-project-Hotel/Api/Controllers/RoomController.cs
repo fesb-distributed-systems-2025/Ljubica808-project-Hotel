@@ -1,6 +1,8 @@
-﻿using Application.DTOs;
+﻿using Api.Common;
+using Application.DTOs;
 using Application.Interfaces.Services;
 using Application.Services;
+using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -20,35 +22,35 @@ namespace Api.Controllers
         public async Task<IActionResult> GetAllRooms()
         {
             var result = await _roomService.GetAllRooms();
-            return Ok(result);
+            return this.HandleResult(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRoomById(int id)
         {
             var result = await _roomService.GetRoomById(id);
-            return Ok(result);
+            return this.HandleResult(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddRoom([FromBody] PostRoomDTO room)
         {
-            var result = await _roomService.AddRoom(room);
-            return Ok(result);
+           var result = await _roomService.AddRoom(room);
+           return this.HandleResult(result);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateRoom([FromBody] PutRoomDTO room)
         {
             var result = await _roomService.UpdateRoom(room);
-            return Ok(result);
+            return this.HandleResult(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRoom(int id)
         {
             var result = await _roomService.DeleteRoom(id);
-            return Ok(result);
+            return this.HandleResult(result);
         }
     }
 }

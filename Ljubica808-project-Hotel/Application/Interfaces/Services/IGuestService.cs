@@ -1,14 +1,15 @@
-﻿using Application.DTOs;
+﻿using Application.Common;
+using Application.DTOs;
 using Domain.Models;
 
 namespace Application.Interfaces.Services
 {
     public interface IGuestService
     {
-        Task<IEnumerable<Guest?>> GetAllGuests();
-        Task<Guest?> GetGuestById(int id);
-        Task<string> AddGuest(PostGuestDTO guest);
-        Task<string> UpdateGuest(PutGuestDTO guest);
-        Task<string> DeleteGuest(int id);
+        Task<Result<IEnumerable<Guest?>>> GetAllGuests();
+        Task<Result<Guest?>> GetGuestById(int id);
+        Task<Result<object>> AddGuest(PostGuestDTO dto);
+        Task<Result<object>> UpdateGuest(PutGuestDTO dto);
+        Task<Result<object>> DeleteGuest(int id);
     }
 }

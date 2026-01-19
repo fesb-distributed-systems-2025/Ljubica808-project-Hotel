@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common;
+using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
@@ -9,78 +10,89 @@ namespace Application.Services
     public class ReservationService : IReservationService
     {
         private readonly IReservationRepository _reservationRepository;
-        private readonly IRoomRepository _roomRepository;
         private readonly IGuestRepository _guestRepository;
+        private readonly IRoomRepository _roomRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public ReservationService(
             IReservationRepository reservationRepository,
-            IRoomRepository roomRepository,
             IGuestRepository guestRepository,
+            IRoomRepository roomRepository,
             IUnitOfWork unitOfWork)
         {
             _reservationRepository = reservationRepository;
-            _roomRepository = roomRepository;
             _guestRepository = guestRepository;
+            _roomRepository = roomRepository;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Reservation?>> GetAllReservations() => await _reservationRepository.GetReservations(); // Kraća verzija funkcije
-        public async Task<Reservation?> GetReservationById(int id) => await _reservationRepository.GetReservationById(id);
+        public async Task<Result<IEnumerable<Reservation?>>> GetAllReservations()
+        {
+            var reservations = await _reservationRepository.GetReservations();
+            return Result<IEnumerable<Reservation?>>.Success(reservations);
+        }
 
-        public async Task<string> AddReservation(PostReservationDTO dto)
+        public async Task<Result<Reservation?>> GetReservationById(int id)
+        {
+            var reservation = await _reservationRepository.GetReservationById(id);
+            return Result<Reservation?>.Success(reservation);
+        }
+
+        public async Task<Result<object>> AddReservation(PostReservationDTO dto)
         {
             var reservation = dto.ToModel();
+            var validation = await ValidateReservation(reservation);
 
-            var validationResult = await ValidateReservation(reservation);
-            if (validationResult != null)
-                return validationResult;
+            if (!validation.IsSuccess)
+                return Result<object>.Failure(validation.ValidationItems);
 
             _reservationRepository.CreateReservation(reservation);
             await _unitOfWork.SaveChangesAsync();
 
-            return $"Reservation successfully created with Id: {reservation.Id}";
+            return Result<object>.Success();
         }
 
-        public async Task<string> UpdateReservation(PutReservationDTO dto)
+        public async Task<Result<object>> UpdateReservation(PutReservationDTO dto)
         {
             var reservation = dto.ToModel();
+            var validation = await ValidateReservation(reservation);
 
-            var validationResult = await ValidateReservation(reservation);
-            if (validationResult != null)
-                return validationResult;
+            if (!validation.IsSuccess)
+                return Result<object>.Failure(validation.ValidationItems);
 
             await _reservationRepository.UpdateReservation(reservation);
             await _unitOfWork.SaveChangesAsync();
 
-            return $"Reservation successfully updated with Id: {reservation.Id}";
+            return Result<object>.Success();
         }
 
-        public async Task<string> DeleteReservation(int id)
+        public async Task<Result<object>> DeleteReservation(int id)
         {
             await _reservationRepository.DeleteReservation(id);
             await _unitOfWork.SaveChangesAsync();
 
-            return $"Reservation successfully deleted with Id: {id}";
+            return Result<object>.Success();
         }
 
-        private async Task<string?> ValidateReservation(Reservation reservation)
+        private async Task<ValidationResult> ValidateReservation(Reservation reservation)
         {
+            var result = new ValidationResult();
+
             var guest = await _guestRepository.GetGuestById(reservation.GuestId);
-            if (guest == null)
-                return "Guest not found.";
+            if (guest is null)
+                result.ValidationItems.Add("Guest not found.");
 
             var room = await _roomRepository.GetRoomById(reservation.RoomId);
-            if (room == null)
-                return "Room not found.";
+            if (room is null)
+                result.ValidationItems.Add("Room not found.");
 
             if (reservation.Checkin >= reservation.Checkout)
-                return "Checkin must be before Checkout.";
+                result.ValidationItems.Add("Checkout date must be after checkin date.");
 
             if (reservation.TotalPrice <= 0)
-                return "Total price must be greater than zero.";
+                result.ValidationItems.Add("Total price cannot be negative or 0.");
 
-            return null;
+            return result;
         }
     }
 }

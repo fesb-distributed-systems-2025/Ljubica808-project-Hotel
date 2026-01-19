@@ -8,6 +8,8 @@ namespace Domain.Models
 {
     public class Employee
     {
+        public static readonly int FirstNameMaxLength = 50;
+        public static readonly int LastNameMaxLength = 50;
         public int Id { get; set; }
         public string FirstName { get; set; } = null!;
         //Da utišamo C# compiler warning, a da istovremeno NE dozvolimo NULL u bazi.
