@@ -8,6 +8,7 @@ namespace Domain.Models
 {
     public class Room
     {
+        public static readonly int RoomNumberMaxLength = 20;
         public int Id { get; set; }
         public string? RoomNumber {  get; set; }
         public int Floor {  get; set; }

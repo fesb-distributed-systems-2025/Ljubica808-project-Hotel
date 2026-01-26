@@ -1,6 +1,8 @@
-﻿using Application.DTOs;
+﻿using Api.Common;
+using Application.DTOs;
 using Application.Interfaces.Services;
 using Application.Services;
+using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -20,35 +22,35 @@ namespace Api.Controllers
         public async Task<IActionResult> GetAllReservations()
         {
             var result = await _reservationService.GetAllReservations();
-            return Ok(result);
+            return this.HandleResult(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetReservationById(int id)
         {
             var result = await _reservationService.GetReservationById(id);
-            return Ok(result);
+            return this.HandleResult(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddReservation([FromBody] PostReservationDTO reservation)
         {
             var result = await _reservationService.AddReservation(reservation);
-            return Ok(result);
+            return this.HandleResult(result);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateReservation([FromBody] PutReservationDTO reservation)
         {
             var result = await _reservationService.UpdateReservation(reservation);
-            return Ok(result);
+            return this.HandleResult(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReservation(int id)
         {
             var result = await _reservationService.DeleteReservation(id);
-            return Ok(result);
+            return this.HandleResult(result);
         }
     }
 }

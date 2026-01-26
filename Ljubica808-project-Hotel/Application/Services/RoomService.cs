@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common;
+using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
@@ -17,57 +18,71 @@ namespace Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Room?>> GetAllRooms() => await _roomRepository.GetRooms();
-        public async Task<Room?> GetRoomById(int id) => await _roomRepository.GetRoomById(id);
+        public async Task<Result<IEnumerable<Room?>>> GetAllRooms()
+        {
+            var rooms = await _roomRepository.GetRooms();
+            return Result<IEnumerable<Room?>>.Success(rooms);
+        }
 
-        public async Task<string> AddRoom(PostRoomDTO dto)
+        public async Task<Result<Room?>> GetRoomById(int id)
+        {
+            var room = await _roomRepository.GetRoomById(id);
+            return Result<Room?>.Success(room);
+        }
+
+        public async Task<Result<object>> AddRoom(PostRoomDTO dto)
         {
             var room = dto.ToModel();
+            var validation = ValidateRoom(room);
 
-            var validationResult = ValidateRoom(room);
-            if (validationResult != null)
-                return validationResult;
+            if (!validation.IsSuccess)
+                return Result<object>.Failure(validation.ValidationItems);
 
             _roomRepository.CreateRoom(room);
             await _unitOfWork.SaveChangesAsync();
 
-            return $"Room successfully created with Id: {room.Id}";
+            return Result<object>.Success();
         }
 
-        public async Task<string> UpdateRoom(PutRoomDTO dto)
+        public async Task<Result<object>> UpdateRoom(PutRoomDTO dto)
         {
             var room = dto.ToModel();
+            var validation = ValidateRoom(room);
 
-            var validationResult = ValidateRoom(room);
-            if (validationResult != null)
-                return validationResult;
+            if (!validation.IsSuccess)
+                return Result<object>.Failure(validation.ValidationItems);
 
             await _roomRepository.UpdateRoom(room);
             await _unitOfWork.SaveChangesAsync();
 
-            return $"Room successfully updated with Id: {room.Id}";
+            return Result<object>.Success();
         }
 
-        public async Task<string> DeleteRoom(int id)
+        public async Task<Result<object>> DeleteRoom(int id)
         {
             await _roomRepository.DeleteRoom(id);
             await _unitOfWork.SaveChangesAsync();
 
-            return $"Room successfully deleted with Id: {id}";
+            return Result<object>.Success();
         }
 
-        private string? ValidateRoom(Room room)
+        private ValidationResult ValidateRoom(Room room)
         {
+            var result = new ValidationResult();
+
             if (string.IsNullOrWhiteSpace(room.RoomNumber))
-                return "Room number is required.";
+                result.ValidationItems.Add("Room number is required.");
 
             if (room.Capacity <= 0)
-                return "Capacity must be greater than zero.";
+                result.ValidationItems.Add("Capacity must be greater than zero.");
 
-            if (room.PricePerNight <= 0)
-                return "Price per night must be greater than zero.";
+            if (room.PricePerNight < 0)
+                result.ValidationItems.Add("Price per night cannot be negative.");
 
-            return null;
+            if (!Enum.IsDefined(typeof(RoomType), room.Type))
+                result.ValidationItems.Add("Room type is required.");
+
+            return result;
         }
     }
 }
